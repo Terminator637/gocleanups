@@ -1,34 +1,40 @@
 package gocleanups
 
-// cleanups struct
-type cleanups struct {
-	cleanups []func()
+// Cleanups struct
+type Cleanups struct {
+	funcs []func()
 }
 
-// Run all cleanups
-func (c *cleanups) Run() {
+// Run all Cleanups
+func (c *Cleanups) Run() {
 	c.run()
 }
 
-// Add cleanup func to cleanups
-func (c *cleanups) Add(f func()) {
-	c.cleanups = append(c.cleanups, f)
+// RunAndReset runs all Cleanups and resets funcs to initial value
+func (c *Cleanups) RunAndReset() {
+	c.run()
+	c.funcs = NewCleanups().funcs
 }
 
-// Export cleanups as simple func
-func (c *cleanups) Export() func() {
+// Add cleanup func to Cleanups
+func (c *Cleanups) Add(f func()) {
+	c.funcs = append(c.funcs, f)
+}
+
+// Export Cleanups as simple func
+func (c *Cleanups) Export() func() {
 	return c.run
 }
 
-func (c *cleanups) run() {
-	for _, cleanup := range c.cleanups {
+func (c *Cleanups) run() {
+	for _, cleanup := range c.funcs {
 		cleanup()
 	}
 }
 
 // NewCleanups constructor
-func NewCleanups() *cleanups {
-	return &cleanups{
-		cleanups: make([]func(), 0),
+func NewCleanups() *Cleanups {
+	return &Cleanups{
+		funcs: make([]func(), 0),
 	}
 }
