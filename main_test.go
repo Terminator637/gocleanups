@@ -6,20 +6,32 @@ import (
 
 func TestCleanups(t *testing.T) {
 	var count int
-	cls := NewCleanups()
+	cls := NewCleanups(func() {
+		count++
+	}, func() {
+		count++
+	}, func() {
+		count++
+	})
 	cls.Add(func() {
+		count++
+	}, func() {
 		count++
 	})
 	cls.Run()
-	cls.Export()()
-	wantCount := 2
-	if count != 2 {
+	wantCount := cls.Len()
+	if count != wantCount {
 		t.Errorf("expect count++ will be called %d times, got: %d", wantCount, count)
 	}
 	cls.RunAndReset()
 	cls.Export()()
-	if count != 3 {
+	wantCount = wantCount * 2
+	wantLen := 0
+	if count != wantCount {
 		t.Errorf("expect count++ will be called %d times, got: %d", wantCount, count)
+	}
+	if cls.Len() != 0 {
+		t.Errorf("expect the length of Cleanups is %d, got: %d", wantLen, cls.Len())
 	}
 
 }
